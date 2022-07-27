@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { PrismaClient } from '@prisma/client';
+import pkg from '@prisma/client';
+const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
 const youtubeMusicLinks = {
@@ -25,22 +26,46 @@ const youtubeMusicLinks = {
 	],
 };
 
+const youtubeLinkData = {
+	1: {
+		name: 'Marcelo Markes: Sinto Fluir',
+		link: 'https://www.youtube.com/watch?v=bwUJsH6bVEI&list=PLOkdQAOeWB9aX9oRsRyBHw5D-IvDYY7YJ&index=7',
+	},
+	2: {
+		name: 'Isaias Saad: Enche-me',
+		link: 'https://www.youtube.com/watch?v=ozBlvwVizXI&list=PLOkdQAOeWB9aX9oRsRyBHw5D-IvDYY7YJ&index=8',
+	},
+	3: {
+		name: 'Morada: Desenvolvendo amor',
+		link: 'https://www.youtube.com/watch?v=ozBlvwVizXI&list=PLOkdQAOeWB9aX9oRsRyBHw5D-IvDYY7YJ&index=9',
+	},
+	4: {
+		name: 'Rodolfo Abrantes: Isaias 9',
+		link: 'https://www.youtube.com/watch?v=ozBlvwVizXI&list=PLOkdQAOeWB9aX9oRsRyBHw5D-IvDYY7YJ&index=10',
+	},
+	5: {
+		name: 'Thalles Roberto: Arde outra vez',
+		link: 'https://www.youtube.com/watch?v=ozBlvwVizXI&list=PLOkdQAOeWB9aX9oRsRyBHw5D-IvDYY7YJ&index=11',
+	},
+};
+
 function createRecommendationData() {
-	const numberMusic =
-		Math.floor(Math.random() * Object.keys(youtubeMusicLinks).length) + 1;
-	const randomMusicLink = youtubeMusicLinks[numberMusic];
+	const randomIndex = Math.floor(
+		Math.random() * Object.keys(youtubeMusicLinks).length
+	);
+	const linkData = youtubeLinkData[randomIndex];
 	return {
-		name: faker.name.findName(),
-		youtubeLink: randomMusicLink,
+		name: linkData.name,
+		youtubeLink: linkData.link,
 	};
 }
 
 function deleteAllRecommendations() {
-	return prisma.$transaction([prisma.$executeRaw`DELETE FROM recommendation`]);
+	return prisma.$transaction([prisma.$executeRaw`DELETE FROM recommendations`]);
 }
 
 function countRecommendations() {
-	return prisma.$queryRaw`SELECT COUNT(*) FROM recommendation`;
+	return prisma.recommendation.count();
 }
 
 const recommendationFactory = {

@@ -1,6 +1,6 @@
+import supertest from 'supertest';
 import recommendationFactory from './factories/recommendation.factory.js';
 import app from '../src/app.js';
-import supertest from 'supertest';
 const agent = supertest(app);
 
 beforeEach(async () => {
@@ -10,7 +10,8 @@ beforeEach(async () => {
 describe('Recomendation post test suit', () => {
 	it('post a new recommendation, should return success', async () => {
 		const recomedation = recommendationFactory.createRecommendationData();
-		const response = await agent.post('/').send(recomedation);
+		console.log(recomedation);
+		const response = await agent.post('/recommendations').send(recomedation);
 		const qtdRecommendations =
 			await recommendationFactory.countRecommendations();
 
@@ -20,7 +21,7 @@ describe('Recomendation post test suit', () => {
 
 	it('post two new recommendations, should return success', async () => {
 		const recomedation = recommendationFactory.createRecommendationData();
-		const response = await agent.post('/').send(recomedation);
+		const response = await agent.post('/recommendations').send(recomedation);
 		const qtdRecommendations =
 			await recommendationFactory.countRecommendations();
 
@@ -28,7 +29,7 @@ describe('Recomendation post test suit', () => {
 		expect(qtdRecommendations).toBe(1);
 
 		const recomedation2 = recommendationFactory.createRecommendationData();
-		const response2 = await agent.post('/').send(recomedation2);
+		const response2 = await agent.post('/recommendations').send(recomedation2);
 		const qtdRecommendations2 =
 			await recommendationFactory.countRecommendations();
 
@@ -39,7 +40,7 @@ describe('Recomendation post test suit', () => {
 	it('post a new recommendation with invalid youtube link, should return unprocessable entity', async () => {
 		const recomedation = recommendationFactory.createRecommendationData();
 		recomedation.youtubeLink = 'https://www.youtub.com/watch?v=2G_mWfG0DZE';
-		const response = await agent.post('/').send(recomedation);
+		const response = await agent.post('/recommendations').send(recomedation);
 		const qtdRecommendations =
 			await recommendationFactory.countRecommendations();
 
@@ -49,7 +50,9 @@ describe('Recomendation post test suit', () => {
 
 	it('post a new recommendation with invalid name, should return unprocessable entity', async () => {
 		const recomedation = recommendationFactory.createRecommendationData();
-		const response = await agent.post('/').send({ ...recomedation, name: 55 });
+		const response = await agent
+			.post('/recommendations')
+			.send({ ...recomedation, name: 55 });
 		const qtdRecommendations =
 			await recommendationFactory.countRecommendations();
 
