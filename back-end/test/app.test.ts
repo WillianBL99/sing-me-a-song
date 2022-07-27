@@ -184,3 +184,40 @@ describe('Recommendation down vote test suit', () => {
 		expect(findRecommendation).toBeNull();
 	});
 });
+
+describe('Recommendation get test suit', () => {
+	it('get recommendations, should return ten recommendations', async () => {
+		await recommendationFactory.createManyRecommendations(10);
+		const recommendations = await recommendationFactory.createRecommendation();
+		const response = await agent.get('/recommendations');
+
+		expect(response.status).toBe(200);
+		expect(response.body.length).toBe(10);
+
+		expect(response.body[0]?.id).toBeDefined();
+		expect(response.body[0].id).not.toBeNaN();
+		expect(response.body[0]?.name).toBeDefined();
+		expect(response.body[0].name).not.toBeNull();
+		expect(response.body[0]?.youtubeLink).toBeDefined();
+		expect(response.body[0].youtubeLink).not.toBeNull();
+		expect(response.body[0]?.score).toBeDefined();
+		expect(response.body[0].score).not.toBeNaN();
+
+		expect(response.body[0].id).toBe(recommendations.id);
+	});
+
+	it('get recommendations, should return empty array', async () => {
+		const response = await agent.get('/recommendations');
+
+		expect(response.status).toBe(200);
+		expect(response.body.length).toBe(0);
+	});
+
+	it('get recommendations when there are less than ten recommendations, should reutrn all recommendations', async () => {
+		await recommendationFactory.createManyRecommendations(5);
+		const response = await agent.get('/recommendations');
+
+		expect(response.status).toBe(200);
+		expect(response.body.length).toBe(5);
+	});
+});

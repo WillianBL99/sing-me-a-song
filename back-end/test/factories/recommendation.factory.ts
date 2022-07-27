@@ -80,6 +80,12 @@ function createRecommendation() {
 	});
 }
 
+function createManyRecommendations(amount: number) {
+	return prisma.recommendation.createMany({
+		data: Array.from({ length: amount }, () => createRecommendationData()),
+	});
+}
+
 function setScoreRecommendation(id: number, score: number) {
 	return prisma.recommendation.update({
 		where: { id },
@@ -103,6 +109,7 @@ const recommendationFactory = {
 	getRecommendationById,
 	setScoreRecommendation,
 	getRecommendationByname,
+	createManyRecommendations,
 };
 
 export default recommendationFactory;
