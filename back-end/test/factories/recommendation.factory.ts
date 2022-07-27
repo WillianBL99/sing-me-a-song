@@ -68,10 +68,22 @@ function countRecommendations() {
 	return prisma.recommendation.count();
 }
 
+function createRecommendation() {
+	return prisma.recommendation.create({
+		data: createRecommendationData(),
+	});
+}
+
+function getRecommendationById(id: number) {
+	return prisma.recommendation.findUnique({ where: { id } });
+}
+
 const recommendationFactory = {
 	createRecommendationData,
 	deleteAllRecommendations,
 	countRecommendations,
+	createRecommendation,
+	getRecommendationById,
 };
 
 export default recommendationFactory;
