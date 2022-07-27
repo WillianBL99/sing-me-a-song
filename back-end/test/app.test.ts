@@ -221,3 +221,85 @@ describe('Recommendation get test suit', () => {
 		expect(response.body.length).toBe(5);
 	});
 });
+
+describe('Recommendations get random', () => {
+	it('get any recommendation when all recommendations have a score above 10, should return a recommendation', async () => {
+		await recommendationFactory.createManyRecommendations(10);
+		const response = await agent.get('/recommendations/random');
+
+		expect(response.status).toBe(200);
+		expect(response.body.id).toBeDefined();
+		expect(response.body.id).not.toBeNaN();
+		expect(response.body.name).toBeDefined();
+		expect(response.body.name).not.toBeNull();
+		expect(response.body.youtubeLink).toBeDefined();
+		expect(response.body.youtubeLink).not.toBeNull();
+		expect(response.body.score).toBeDefined();
+		expect(response.body.score).not.toBeNaN();
+	});
+
+	it('get any recommendation when all recommendations have a score below or equal 10, should return a recommendation', async () => {
+		await recommendationFactory.createManyRecommendations(10);
+		const response = await agent.get('/recommendations/random');
+
+		expect(response.status).toBe(200);
+		expect(response.body.id).toBeDefined();
+		expect(response.body.id).not.toBeNaN();
+		expect(response.body.name).toBeDefined();
+		expect(response.body.name).not.toBeNull();
+		expect(response.body.youtubeLink).toBeDefined();
+		expect(response.body.youtubeLink).not.toBeNull();
+		expect(response.body.score).toBeDefined();
+		expect(response.body.score).not.toBeNaN();
+	});
+
+	it('get 70% of the time recommendations with a score above 10, should return a recommendation', async () => {
+		await recommendationFactory.createManyRecommendations(10);
+		const recommendations = await recommendationFactory.createRecommendation();
+		await recommendationFactory.setScoreRecommendation(recommendations.id, 11);
+
+		const ALL_TESTS = 100;
+		const SEVENTY_PERCENT_OF_TESTS = Math.floor(ALL_TESTS * 0.7);
+
+		let countSuccess = 0;
+		for (let i = 0; i < 100; i++) {
+			const response = await agent.get('/recommendations/random');
+			if (response.body.id === recommendations.id) {
+				countSuccess++;
+			}
+		}
+
+		expect(countSuccess).toBeLessThan(SEVENTY_PERCENT_OF_TESTS);
+	});
+
+	it('get 30% of the time recommendations with a score below or equal 10, should return a recommendation', async () => {
+		for (let i = 0; i < 10; i++) {
+			const recomendation = await recommendationFactory.createRecommendation();
+			await recommendationFactory.setScoreRecommendation(recomendation.id, 11);
+		}
+		const recommendations = await recommendationFactory.createRecommendation();
+		await recommendationFactory.setScoreRecommendation(recommendations.id, 5);
+
+		const ALL_TESTS = 100;
+		const THIRTY_PERCENT_OF_TESTS = Math.floor(ALL_TESTS * 0.3);
+
+		let countSuccess = 0;
+		for (let i = 0; i < 100; i++) {
+			const response = await agent.get('/recommendations/random');
+			if (response.body.id === recommendations.id) {
+				countSuccess++;
+			}
+		}
+
+		expect(countSuccess).toBeLessThanOrEqual(THIRTY_PERCENT_OF_TESTS);
+	});
+
+	it('get status code 404 when there are no recommendations', async () => {
+		const response = await agent.get('/recommendations/random');
+		const qtdRecommendations =
+			await recommendationFactory.countRecommendations();
+
+		expect(response.status).toBe(404);
+		expect(qtdRecommendations).toBe(0);
+	});
+});
