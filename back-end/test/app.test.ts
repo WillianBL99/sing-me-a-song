@@ -303,3 +303,30 @@ describe('Recommendations get random', () => {
 		expect(qtdRecommendations).toBe(0);
 	});
 });
+
+describe('Recommendation get top x', () => {
+	it('given top 10 recommendations, should return x recommendations in descending order', async () => {
+		for (let i = 0; i < 20; i++) {
+			const recommendation = await recommendationFactory.createRecommendation();
+			await recommendationFactory.setScoreRecommendation(recommendation.id, i);
+		}
+
+		const response = await agent.get('/recommendations/top/10');
+
+		expect(response.status).toBe(200);
+		expect(response.body.length).toBe(10);
+
+		let lastScore = response.body[0].score;
+		for (let i = 1; i < response.body.length; i++) {
+			expect(response.body[i].score).toBeLessThan(lastScore);
+			lastScore = response.body[i].score;
+		}
+	});
+
+	it('given top 10 recommendations when there is no recommendation it should return an empty list', async () => {
+		const response = await agent.get('/recommendations/top/10');
+
+		expect(response.status).toBe(200);
+		expect(response.body.length).toBe(0);
+	});
+});
