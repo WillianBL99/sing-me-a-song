@@ -7,11 +7,14 @@ beforeEach(async () => {
 	await recommendationFactory.deleteAllRecommendations();
 });
 
+afterAll(async () => {
+	await recommendationFactory.deleteAllRecommendations();
+});
+
 describe('Recomendation post test suit', () => {
 	it('post a new recommendation, should return success', async () => {
-		const recomedation = recommendationFactory.createRecommendationData();
-		console.log(recomedation);
-		const response = await agent.post('/recommendations').send(recomedation);
+		const recommendation = recommendationFactory.createRecommendationData();
+		const response = await agent.post('/recommendations').send(recommendation);
 		const qtdRecommendations =
 			await recommendationFactory.countRecommendations();
 
@@ -20,16 +23,18 @@ describe('Recomendation post test suit', () => {
 	});
 
 	it('post two new recommendations, should return success', async () => {
-		const recomedation = recommendationFactory.createRecommendationData();
-		const response = await agent.post('/recommendations').send(recomedation);
+		const recommendation = recommendationFactory.createRecommendationData();
+		const response = await agent.post('/recommendations').send(recommendation);
 		const qtdRecommendations =
 			await recommendationFactory.countRecommendations();
 
 		expect(response.status).toBe(201);
 		expect(qtdRecommendations).toBe(1);
 
-		const recomedation2 = recommendationFactory.createRecommendationData();
-		const response2 = await agent.post('/recommendations').send(recomedation2);
+		const recommendation2 = recommendationFactory.createRecommendationData();
+		const response2 = await agent
+			.post('/recommendations')
+			.send(recommendation2);
 		const qtdRecommendations2 =
 			await recommendationFactory.countRecommendations();
 
@@ -37,10 +42,21 @@ describe('Recomendation post test suit', () => {
 		expect(qtdRecommendations2).toBe(2);
 	});
 
+	it('post the same recommendation twice, should return conflict', async () => {
+		const recommendation = recommendationFactory.createRecommendationData();
+		await agent.post('/recommendations').send(recommendation);
+		const response = await agent.post('/recommendations').send(recommendation);
+
+		expect(response.status).toBe(409);
+		const findRecommendation =
+			await recommendationFactory.getRecommendationByname(recommendation.name);
+		expect(findRecommendation).not.toBeNull();
+	});
+
 	it('post a new recommendation with invalid youtube link, should return unprocessable entity', async () => {
-		const recomedation = recommendationFactory.createRecommendationData();
-		recomedation.youtubeLink = 'https://www.youtub.com/watch?v=2G_mWfG0DZE';
-		const response = await agent.post('/recommendations').send(recomedation);
+		const recommendation = recommendationFactory.createRecommendationData();
+		recommendation.youtubeLink = 'https://www.youtub.com/watch?v=2G_mWfG0DZE';
+		const response = await agent.post('/recommendations').send(recommendation);
 		const qtdRecommendations =
 			await recommendationFactory.countRecommendations();
 
@@ -49,10 +65,10 @@ describe('Recomendation post test suit', () => {
 	});
 
 	it('post a new recommendation with invalid name, should return unprocessable entity', async () => {
-		const recomedation = recommendationFactory.createRecommendationData();
+		const recommendation = recommendationFactory.createRecommendationData();
 		const wrongPostData = {
 			name: 555,
-			youtubeLink: recomedation.youtubeLink,
+			youtubeLink: recommendation.youtubeLink,
 		};
 		const response = await agent.post('/recommendations').send(wrongPostData);
 		const qtdRecommendations =
@@ -65,31 +81,32 @@ describe('Recomendation post test suit', () => {
 
 describe('Recommendation up vote test suit', () => {
 	it('up vote a recommendation, should return success', async () => {
-		const recomedation = await recommendationFactory.createRecommendation();
+		const recommendation = await recommendationFactory.createRecommendation();
 		const response = await agent.post(
-			`/recommendations/${recomedation.id}/upvote`
+			`/recommendations/${recommendation.id}/upvote`
 		);
 
 		expect(response.status).toBe(200);
 		const recommendationVoted =
-			await recommendationFactory.getRecommendationById(recomedation.id);
+			await recommendationFactory.getRecommendationById(recommendation.id);
 
 		expect(recommendationVoted.score).toBe(1);
 	});
 
 	it('vote twice on a recommendation, should return success', async () => {
-		const recomedation = await recommendationFactory.createRecommendation();
+		const recommendation = await recommendationFactory.createRecommendation();
+		console.log({ recommendation });
 		const response = await agent.post(
-			`/recommendations/${recomedation.id}/upvote`
+			`/recommendations/${recommendation.id}/upvote`
 		);
 		const response2 = await agent.post(
-			`/recommendations/${recomedation.id}/upvote`
+			`/recommendations/${recommendation.id}/upvote`
 		);
 
 		expect(response.status).toBe(200);
 		expect(response2.status).toBe(200);
 		const recommendationVoted =
-			await recommendationFactory.getRecommendationById(recomedation.id);
+			await recommendationFactory.getRecommendationById(recommendation.id);
 
 		expect(recommendationVoted.score).toBe(2);
 	});
@@ -100,11 +117,70 @@ describe('Recommendation up vote test suit', () => {
 			await recommendationFactory.getRecommendationById(123);
 
 		expect(response.status).toBe(404);
-		expect(findRecommendation).toBe(null);
+		expect(findRecommendation).toBeNull();
 	});
 
 	it('pass id as string, should return unprocessable entity', async () => {
 		const response = await agent.post('/recommendations/abc/upvote');
 		expect(response.status).toBe(422);
+	});
+});
+
+describe('Recommendation down vote test suit', () => {
+	it('down vote a recommendation, should return success', async () => {
+		const recommendation = await recommendationFactory.createRecommendation();
+		const response = await agent.post(
+			`/recommendations/${recommendation.id}/downvote`
+		);
+
+		expect(response.status).toBe(200);
+		const recommendationVoted =
+			await recommendationFactory.getRecommendationById(recommendation.id);
+
+		expect(recommendationVoted.score).toBe(-1);
+	});
+
+	it('down vote twice on a recommendation, should return success', async () => {
+		const recommendation = await recommendationFactory.createRecommendation();
+		const response = await agent.post(
+			`/recommendations/${recommendation.id}/downvote`
+		);
+		const response2 = await agent.post(
+			`/recommendations/${recommendation.id}/downvote`
+		);
+
+		expect(response.status).toBe(200);
+		expect(response2.status).toBe(200);
+		const recommendationVoted =
+			await recommendationFactory.getRecommendationById(recommendation.id);
+
+		expect(recommendationVoted.score).toBe(-2);
+	});
+
+	it('down vote a invalid recommendation, should return not found', async () => {
+		const response = await agent.post('/recommendations/123/downvote');
+		const findRecommendation =
+			await recommendationFactory.getRecommendationById(123);
+
+		expect(response.status).toBe(404);
+		expect(findRecommendation).toBeNull();
+	});
+
+	it('pass id as string, should return unprocessable entity', async () => {
+		const response = await agent.post('/recommendations/abc/downvote');
+		expect(response.status).toBe(422);
+	});
+
+	it('down vote a recommendation score of -5, should return success and delete the recommendation', async () => {
+		const recommendation = await recommendationFactory.createRecommendation();
+		await recommendationFactory.setScoreRecommendation(recommendation.id, -5);
+		const response = await agent.post(
+			`/recommendations/${recommendation.id}/downvote`
+		);
+
+		expect(response.status).toBe(200);
+		const findRecommendation =
+			await recommendationFactory.getRecommendationById(recommendation.id);
+		expect(findRecommendation).toBeNull();
 	});
 });
