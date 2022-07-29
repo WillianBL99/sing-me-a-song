@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import pkg from '@prisma/client';
+import { string } from 'joi';
 const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
@@ -53,9 +54,14 @@ function createRecommendationData() {
 	const randomIndex = Math.floor(
 		Math.random() * Object.keys(youtubeMusicLinks).length
 	);
-	const linkData = youtubeLinkData[randomIndex];
+	const linkData = youtubeLinkData[randomIndex + 1] as {
+		name: string;
+		link: string;
+	};
 	return {
-		name: linkData.name,
+		name: `${
+			linkData.name
+		} - ${faker.internet.emoji()}${faker.internet.emoji()}`,
 		youtubeLink: linkData.link,
 	};
 }
@@ -68,10 +74,42 @@ function countRecommendations() {
 	return prisma.recommendation.count();
 }
 
+function createRecommendation() {
+	return prisma.recommendation.create({
+		data: createRecommendationData(),
+	});
+}
+
+function createManyRecommendations(amount: number) {
+	return prisma.recommendation.createMany({
+		data: Array.from({ length: amount }, () => createRecommendationData()),
+	});
+}
+
+function setScoreRecommendation(id: number, score: number) {
+	return prisma.recommendation.update({
+		where: { id },
+		data: { score },
+	});
+}
+
+function getRecommendationById(id: number) {
+	return prisma.recommendation.findUnique({ where: { id } });
+}
+
+function getRecommendationByname(name: string) {
+	return prisma.recommendation.findUnique({ where: { name } });
+}
+
 const recommendationFactory = {
 	createRecommendationData,
 	deleteAllRecommendations,
 	countRecommendations,
+	createRecommendation,
+	getRecommendationById,
+	setScoreRecommendation,
+	getRecommendationByname,
+	createManyRecommendations,
 };
 
 export default recommendationFactory;
