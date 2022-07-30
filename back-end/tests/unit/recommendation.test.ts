@@ -1,10 +1,8 @@
-import { conflictError } from '../../src/utils/errorUtils.js';
 import { recommendationService } from '../../src/services/recommendationsService';
 import { recommendationRepository } from '../../src/repositories/recommendationRepository';
 import { jest } from '@jest/globals';
 
 import recommendationFactory from '../factories/recommendation.factory.js';
-import { Recommendation } from '@prisma/client';
 
 jest.mock('../../src/repositories/recommendationRepository');
 
@@ -21,6 +19,7 @@ describe('Recomendation create test suite', () => {
 		expect(recommendationRepository.create).toBeCalled();
 		expect(recommendationRepository.findByName).toBeCalled();
 	});
+
 	it('should dont post a recommendation with a name already in use', async () => {
 		const recommendationData = recommendationFactory.createRecommendationData();
 		jest
@@ -39,12 +38,7 @@ describe('Recomendation create test suite', () => {
 
 describe('Recommendation upvote test suite', () => {
 	it('should upvote a recommendation', async () => {
-		const recommendationData: Recommendation = {
-			id: 1,
-			name: 'Recommendation 1',
-			youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-			score: 0,
-		};
+		const recommendationData = recommendationFactory.recomendationData();
 		jest
 			.spyOn(recommendationRepository, 'find')
 			.mockResolvedValueOnce(recommendationData);
@@ -68,12 +62,7 @@ describe('Recommendation upvote test suite', () => {
 describe('Recommendation downvote test suite', () => {
 	jest.clearAllMocks();
 	it('should downvote a recommendation', async () => {
-		const recommendationData: Recommendation = {
-			id: 1,
-			name: 'Recommendation 1',
-			youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-			score: 0,
-		};
+		const recommendationData = recommendationFactory.createRecommendationData();
 
 		jest
 			.spyOn(recommendationRepository, 'find')
@@ -88,12 +77,7 @@ describe('Recommendation downvote test suite', () => {
 	});
 
 	it('when the recommendation score is less than -5, should delete the recommendation', async () => {
-		const recommendationData: Recommendation = {
-			id: 1,
-			name: 'Recommendation 1',
-			youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-			score: -6,
-		};
+		const recommendationData = recommendationFactory.recomendationData();
 		console.log('teste', { recommendationData });
 
 		jest
@@ -155,14 +139,7 @@ describe('Recommendation get random test suite', () => {
 	});
 
 	it('when random above 0.7, shoud return 30 percernt of the time a recommendation with a score below 10', async () => {
-		const recommendations: Recommendation[] = [
-			{
-				id: 1,
-				name: 'Recommendation 1',
-				youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-				score: 0,
-			},
-		];
+		const recommendations = [recommendationFactory.recomendationData()];
 		jest.spyOn(Math, 'random').mockReturnValueOnce(0.7);
 		jest
 			.spyOn(recommendationRepository, 'findAll')
@@ -173,14 +150,7 @@ describe('Recommendation get random test suite', () => {
 	});
 
 	it('when random below 0.7, shoud return 70 percernt of the time a recommendation with a score above 10', async () => {
-		const recommendations: Recommendation[] = [
-			{
-				id: 1,
-				name: 'Recommendation 1',
-				youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-				score: 11,
-			},
-		];
+		const recommendations = [recommendationFactory.recomendationData(11)];
 		jest.spyOn(Math, 'random').mockReturnValueOnce(0.6);
 		jest
 			.spyOn(recommendationRepository, 'findAll')

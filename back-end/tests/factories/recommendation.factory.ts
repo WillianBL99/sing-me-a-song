@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import pkg from '@prisma/client';
-import { string } from 'joi';
+import pkg, { Recommendation } from '@prisma/client';
+import { func, string } from 'joi';
 const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
@@ -66,6 +66,15 @@ function createRecommendationData() {
 	};
 }
 
+function recomendationData(score = 0): Recommendation {
+	return {
+		id: 1,
+		name: faker.lorem.sentence(),
+		youtubeLink: faker.internet.url(),
+		score: score,
+	};
+}
+
 function deleteAllRecommendations() {
 	return prisma.$transaction([prisma.$executeRaw`DELETE FROM recommendations`]);
 }
@@ -110,6 +119,7 @@ const recommendationFactory = {
 	setScoreRecommendation,
 	getRecommendationByname,
 	createManyRecommendations,
+	recomendationData,
 };
 
 export default recommendationFactory;
