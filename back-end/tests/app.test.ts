@@ -95,7 +95,7 @@ describe('Recommendation up vote test suit', () => {
 
 	it('vote twice on a recommendation, should return success', async () => {
 		const recommendation = await recommendationFactory.createRecommendation();
-		console.log({ recommendation });
+
 		const response = await agent.post(
 			`/recommendations/${recommendation.id}/upvote`
 		);
