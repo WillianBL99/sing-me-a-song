@@ -124,3 +124,13 @@ describe('Recommendation downvote test suite', () => {
 		expect(promise).rejects.toEqual({ type: 'not_found', message: '' });
 	});
 });
+
+describe('Recommendation getAll test suite', () => {
+	it('should get all recommendations', async () => {
+		jest
+			.spyOn(recommendationRepository, 'findAll')
+			.mockImplementationOnce((): any => {});
+		await recommendationService.get();
+		expect(recommendationRepository.findAll).toBeCalled();
+	});
+});
