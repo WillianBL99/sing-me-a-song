@@ -36,3 +36,31 @@ describe('Recomendation create test suite', () => {
 		});
 	});
 });
+
+describe('Recommendation upvote test suite', () => {
+	it('should upvote a recommendation', async () => {
+		const recommendationData: Recommendation = {
+			id: 1,
+			name: 'Recommendation 1',
+			youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			score: 0,
+		};
+		jest
+			.spyOn(recommendationRepository, 'find')
+			.mockResolvedValueOnce(recommendationData);
+		jest
+			.spyOn(recommendationRepository, 'updateScore')
+			.mockImplementationOnce((): any => {});
+		await recommendationService.upvote(1);
+		expect(recommendationRepository.updateScore).toBeCalled();
+		expect(recommendationRepository.find).toBeCalled();
+	});
+
+	it('given a inexistent recommendation id, should throw an error', async () => {
+		jest.spyOn(recommendationRepository, 'find').mockResolvedValueOnce(null);
+
+		const promise = recommendationService.upvote(1);
+		expect(promise).rejects.toEqual({ type: 'not_found', message: '' });
+		expect(recommendationRepository.find).toBeCalled();
+	});
+});
