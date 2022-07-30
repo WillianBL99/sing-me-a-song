@@ -134,3 +134,13 @@ describe('Recommendation getAll test suite', () => {
 		expect(recommendationRepository.findAll).toBeCalled();
 	});
 });
+
+describe('Recommendation getTop test suite', () => {
+	it('should get top recommendations', async () => {
+		jest
+			.spyOn(recommendationRepository, 'getAmountByScore')
+			.mockImplementationOnce((): any => {});
+		await recommendationService.getTop(10);
+		expect(recommendationRepository.getAmountByScore).toBeCalled();
+	});
+});
