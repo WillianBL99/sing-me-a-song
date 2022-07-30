@@ -64,3 +64,63 @@ describe('Recommendation upvote test suite', () => {
 		expect(recommendationRepository.find).toBeCalled();
 	});
 });
+
+describe('Recommendation downvote test suite', () => {
+	jest.clearAllMocks();
+	it('should downvote a recommendation', async () => {
+		const recommendationData: Recommendation = {
+			id: 1,
+			name: 'Recommendation 1',
+			youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			score: 0,
+		};
+
+		jest
+			.spyOn(recommendationRepository, 'find')
+			.mockImplementationOnce((): any => recommendationData);
+		jest
+			.spyOn(recommendationRepository, 'updateScore')
+			.mockImplementationOnce((): any => recommendationData);
+
+		await recommendationService.downvote(1);
+		expect(recommendationRepository.find).toBeCalled();
+		expect(recommendationRepository.updateScore).toBeCalled();
+	});
+
+	it('when the recommendation score is less than -5, should delete the recommendation', async () => {
+		const recommendationData: Recommendation = {
+			id: 1,
+			name: 'Recommendation 1',
+			youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			score: -6,
+		};
+		console.log('teste', { recommendationData });
+
+		jest
+			.spyOn(recommendationRepository, 'find')
+			.mockResolvedValueOnce(recommendationData);
+		jest
+			.spyOn(recommendationRepository, 'updateScore')
+			.mockResolvedValueOnce(recommendationData);
+		jest
+			.spyOn(recommendationRepository, 'remove')
+			.mockImplementationOnce((): any => {});
+
+		await recommendationService.downvote(1);
+		expect(recommendationRepository.find).toBeCalled();
+		expect(recommendationRepository.updateScore).toBeCalled();
+		expect(recommendationRepository.remove).toBeCalled();
+	});
+
+	it('given a inexistent recommendation id, should throw an error', async () => {
+		jest
+			.spyOn(recommendationRepository, 'find')
+			.mockImplementationOnce((): any => {});
+		jest
+			.spyOn(recommendationRepository, 'updateScore')
+			.mockImplementationOnce((): any => {});
+
+		const promise = recommendationService.downvote(1);
+		expect(promise).rejects.toEqual({ type: 'not_found', message: '' });
+	});
+});
