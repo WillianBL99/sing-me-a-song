@@ -144,3 +144,49 @@ describe('Recommendation getTop test suite', () => {
 		expect(recommendationRepository.getAmountByScore).toBeCalled();
 	});
 });
+
+describe('Recommendation get random test suite', () => {
+	it('when have no recommendation, should return not found error', async () => {
+		jest.spyOn(recommendationRepository, 'findAll').mockResolvedValueOnce([]);
+		jest.spyOn(recommendationRepository, 'findAll').mockResolvedValueOnce([]);
+
+		const promise = recommendationService.getRandom();
+		expect(promise).rejects.toEqual({ type: 'not_found', message: '' });
+	});
+
+	it('when random above 0.7, shoud return 30 percernt of the time a recommendation with a score below 10', async () => {
+		const recommendations: Recommendation[] = [
+			{
+				id: 1,
+				name: 'Recommendation 1',
+				youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+				score: 0,
+			},
+		];
+		jest.spyOn(Math, 'random').mockReturnValueOnce(0.7);
+		jest
+			.spyOn(recommendationRepository, 'findAll')
+			.mockResolvedValueOnce(recommendations);
+
+		const response = await recommendationService.getRandom();
+		expect(response.id).toEqual(recommendations[0].id);
+	});
+
+	it('when random below 0.7, shoud return 70 percernt of the time a recommendation with a score above 10', async () => {
+		const recommendations: Recommendation[] = [
+			{
+				id: 1,
+				name: 'Recommendation 1',
+				youtubeLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+				score: 11,
+			},
+		];
+		jest.spyOn(Math, 'random').mockReturnValueOnce(0.6);
+		jest
+			.spyOn(recommendationRepository, 'findAll')
+			.mockResolvedValueOnce(recommendations);
+
+		const response = await recommendationService.getRandom();
+		expect(response.id).toEqual(recommendations[0].id);
+	});
+});

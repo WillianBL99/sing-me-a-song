@@ -28,7 +28,7 @@ async function downvote(id: number) {
 		id,
 		'decrement'
 	);
-	console.log({ updatedRecommendation });
+
 	if (updatedRecommendation.score < -5) {
 		await recommendationRepository.remove(id);
 	}
@@ -37,7 +37,6 @@ async function downvote(id: number) {
 async function getByIdOrFail(id: number) {
 	const recommendation = await recommendationRepository.find(id);
 
-	console.log({ recommendation });
 	if (!recommendation) throw notFoundError();
 
 	return recommendation;
@@ -56,6 +55,7 @@ async function getRandom() {
 	const scoreFilter = getScoreFilter(random);
 
 	const recommendations = await getByScore(scoreFilter);
+	console.log({ recommendations });
 	if (recommendations.length === 0) {
 		throw notFoundError();
 	}
