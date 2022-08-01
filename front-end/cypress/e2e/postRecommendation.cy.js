@@ -37,3 +37,37 @@ describe('Home page test suite', () => {
 		cy.get('[data-test="3"]').contains(recommendationsData[0].name);
 	});
 });
+
+describe('Recommendation upvote test suite', () => {
+	it('should upvote a recommendation', () => {
+		const recommendationData = RecommendationFactory.getRecommendation(2);
+		cy.createRecommendationByApi({ linksData: [recommendationData] });
+
+		cy.visit(URL);
+		cy.intercept('POST', '/recommendations/*/upvote').as(
+			'upvoteRecommendation'
+		);
+		cy.get('[data-test="up"]').click();
+		cy.wait('@upvoteRecommendation');
+
+		cy.visit(URL);
+		cy.get('[data-test="0"]>div:last-child').contains('1');
+	});
+
+	it('should upvote a recommendation twice', () => {
+		const recommendationData = RecommendationFactory.getRecommendation(2);
+		cy.createRecommendationByApi({ linksData: [recommendationData] });
+
+		cy.visit(URL);
+		cy.intercept('POST', '/recommendations/*/upvote').as(
+			'upvoteRecommendation'
+		);
+		cy.get('[data-test="up"]').click();
+		cy.wait('@upvoteRecommendation');
+		cy.get('[data-test="up"]').click();
+		cy.wait('@upvoteRecommendation');
+
+		cy.visit(URL);
+		cy.get('[data-test="0"]>div:last-child').contains('2');
+	});
+});
