@@ -55,7 +55,6 @@ function findByName(name: string) {
 }
 
 async function updateScore(id: number, operation: 'increment' | 'decrement') {
-	console.log('updateScore');
 	return prisma.recommendation.update({
 		where: { id },
 		data: {

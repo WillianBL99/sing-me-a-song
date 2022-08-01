@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev:test": "NODE_ENV=test && dotenv -e .env.test prisma migrate dev && npx nodemon src/server.ts",
+    "dev:test": "NODE_ENV=test && dotenv -e .env.test prisma migrate dev && dotenv -e .env.test npx nodemon src/server.ts",
     "dev": "nodemon src/server.ts",
     "test:int": "NODE_ENV=test && dotenv -e .env.test prisma migrate dev && NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest -- -i",
     "test:unit": "NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest -- -i --coverage --testPathPattern=tests/unit"
