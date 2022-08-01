@@ -31,10 +31,10 @@ describe('Home page test suite', () => {
 			RecommendationFactory.getRecommendation(3),
 			RecommendationFactory.getRecommendation(4),
 		];
-		cy.createRecommendationByApi(recommendationsData);
+		cy.createRecommendationByApi({ linksData: recommendationsData });
 
 		cy.visit(URL);
-		cy.get('[data-test="3"]').contains(recommendationsData[0].name);
+		cy.contains('[data-test="3"]').should('not.exist');
 	});
 });
 
@@ -162,7 +162,9 @@ describe('Top page test suite', () => {
 		];
 		cy.createRecommendationByApi({
 			linksData: recommendationsData,
-			includeScore: true,
+			options: {
+				includeScore: true,
+			},
 		});
 
 		cy.visit(`${URL}/top`);
@@ -170,5 +172,22 @@ describe('Top page test suite', () => {
 		cy.get('[data-test="1"]').contains(recommendationsData[2].name); // the second recommendation should be in second place
 		cy.get('[data-test="2"]').contains(recommendationsData[1].name); // the third recommendation should be in third place
 		cy.get('[data-test="3"]').contains(recommendationsData[0].name); // the fourth recommendation should be in fourth place
+	});
+});
+
+describe('Random page test suite', () => {
+	it('should on the random page when cliking random button', () => {
+		cy.visit(URL);
+
+		cy.get('[data-test="button-random"]').click();
+		cy.url().should('include', '/random');
+	});
+
+	it('should show a recommendation', () => {
+		const recommendationData = RecommendationFactory.getRecommendation(4);
+		cy.createRecommendationByApi({ linksData: [recommendationData] });
+
+		cy.visit(`${URL}/random`);
+		cy.contains(recommendationData.name);
 	});
 });
