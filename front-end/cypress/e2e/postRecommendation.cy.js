@@ -31,10 +31,10 @@ describe('Home page test suite', () => {
 			RecommendationFactory.getRecommendation(3),
 			RecommendationFactory.getRecommendation(4),
 		];
-		cy.createRecommendationByApi(recommendationsData);
+		cy.createRecommendationByApi({ linksData: recommendationsData });
 
 		cy.visit(URL);
-		cy.get('[data-test="3"]').contains(recommendationsData[0].name);
+		cy.contains('[data-test="3"]').should('not.exist');
 	});
 });
 
@@ -162,7 +162,9 @@ describe('Top page test suite', () => {
 		];
 		cy.createRecommendationByApi({
 			linksData: recommendationsData,
-			includeScore: true,
+			options: {
+				includeScore: true,
+			},
 		});
 
 		cy.visit(`${URL}/top`);

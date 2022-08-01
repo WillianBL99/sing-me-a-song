@@ -38,7 +38,6 @@ async function random(req: Request, res: Response) {
 
 async function get(req: Request, res: Response) {
 	const recommendations = await recommendationService.get();
-	console.log({ recommendations });
 	res.send(recommendations);
 }
 
