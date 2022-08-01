@@ -174,3 +174,20 @@ describe('Top page test suite', () => {
 		cy.get('[data-test="3"]').contains(recommendationsData[0].name); // the fourth recommendation should be in fourth place
 	});
 });
+
+describe('Random page test suite', () => {
+	it('should on the random page when cliking random button', () => {
+		cy.visit(URL);
+
+		cy.get('[data-test="button-random"]').click();
+		cy.url().should('include', '/random');
+	});
+
+	it('should show a recommendation', () => {
+		const recommendationData = RecommendationFactory.getRecommendation(4);
+		cy.createRecommendationByApi({ linksData: [recommendationData] });
+
+		cy.visit(`${URL}/random`);
+		cy.contains(recommendationData.name);
+	});
+});
