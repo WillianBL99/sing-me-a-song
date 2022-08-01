@@ -1,4 +1,6 @@
-import { Suspense, lazy, Component } from 'react';
+/*eslint no-unused-vars: "off"*/
+/*eslint react/display-name: "off"*/
+import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 const Loading = () => <div>Loading...</div>;
