@@ -7,7 +7,8 @@
     Sing me a Song
   </h3>
   <div align="center">
-  <h3>Built With</h3>
+  <h3>Built With</h3>  
+  <img src="https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/4kxi4g/main&style=for-the-badge&logo=cypress" height="30px"/>
   <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" height="30px"/>
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" height="30px"/>
   <img src="https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white" height="30px"/>
