@@ -1,6 +1,5 @@
 import { Recommendation } from '@prisma/client';
 import { prisma } from '../database.js';
-console.log('oi');
 
 export type RecommendatinTestData = Omit<Recommendation, 'id'>;
 

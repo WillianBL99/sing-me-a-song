@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { recommendationController } from '../controllers/recommendationController.js';
 
 const recommendationRouter = Router();
-console.log('oi');
 
 recommendationRouter.post('/', recommendationController.insert);
 recommendationRouter.get('/', recommendationController.get);
