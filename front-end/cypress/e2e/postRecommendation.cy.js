@@ -6,6 +6,10 @@ beforeEach(() => {
 	cy.deleteAllRecommendations();
 });
 
+after(() => {
+	cy.deleteAllRecommendations();
+});
+
 describe('Home page test suite', () => {
 	it('should create a recommendation', () => {
 		const recommendationData = RecommendationFactory.getRecommendation(2);
