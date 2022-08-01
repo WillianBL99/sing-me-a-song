@@ -78,7 +78,6 @@ describe('Recommendation downvote test suite', () => {
 
 	it('when the recommendation score is less than -5, should delete the recommendation', async () => {
 		const recommendationData = recommendationFactory.recomendationData();
-		console.log('teste', { recommendationData });
 
 		jest
 			.spyOn(recommendationRepository, 'find')
