@@ -125,3 +125,50 @@ describe('Recommendation downvote test suite', () => {
 		cy.contains(recommendationData.name).should('not.exist');
 	});
 });
+
+describe('Top page test suite', () => {
+	it('shoul on the top page when clicking the top button', () => {
+		cy.visit(URL);
+		cy.get('[data-test="button-top"]').click();
+		cy.url().should('include', '/top');
+	});
+
+	it('the recommendations with the righest scores should be in first place', () => {
+		const recommendationsData = [
+			RecommendationFactory.getRecommendation(1),
+			RecommendationFactory.getRecommendation(2),
+			RecommendationFactory.getRecommendation(3),
+			RecommendationFactory.getRecommendation(4),
+		];
+		cy.createRecommendationByApi({ linksData: recommendationsData });
+
+		cy.visit(`${URL}/top`);
+		cy.intercept('GET', '/recommendations/top/10').as('getRecommendations');
+		cy.get('[data-test="3"]').within(() => {
+			cy.get('[data-test="up"]').click();
+		});
+		cy.wait('@getRecommendations');
+
+		cy.visit(`${URL}/top`);
+		cy.get('[data-test="0"]').contains(recommendationsData[3].name); // the last recommendation should be in first place
+	});
+
+	it('the list of recommendations should be sorted by score', () => {
+		const recommendationsData = [
+			RecommendationFactory.getRecommendation(1),
+			RecommendationFactory.getRecommendation(2),
+			RecommendationFactory.getRecommendation(3),
+			RecommendationFactory.getRecommendation(4),
+		];
+		cy.createRecommendationByApi({
+			linksData: recommendationsData,
+			includeScore: true,
+		});
+
+		cy.visit(`${URL}/top`);
+		cy.get('[data-test="0"]').contains(recommendationsData[3].name); // the last recommendation should be in first place
+		cy.get('[data-test="1"]').contains(recommendationsData[2].name); // the second recommendation should be in second place
+		cy.get('[data-test="2"]').contains(recommendationsData[1].name); // the third recommendation should be in third place
+		cy.get('[data-test="3"]').contains(recommendationsData[0].name); // the fourth recommendation should be in fourth place
+	});
+});
