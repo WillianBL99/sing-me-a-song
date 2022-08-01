@@ -71,3 +71,57 @@ describe('Recommendation upvote test suite', () => {
 		cy.get('[data-test="0"]>div:last-child').contains('2');
 	});
 });
+
+describe('Recommendation downvote test suite', () => {
+	it('should downvote a recommendation', () => {
+		const recommendationData = RecommendationFactory.getRecommendation(2);
+		cy.createRecommendationByApi({ linksData: [recommendationData] });
+
+		cy.visit(URL);
+		cy.intercept('POST', '/recommendations/*/downvote').as(
+			'downvoteRecommendation'
+		);
+		cy.get('[data-test="down"]').click();
+		cy.wait('@downvoteRecommendation');
+
+		cy.visit(URL);
+		cy.get('[data-test="0"]>div:last-child').contains('1');
+	});
+
+	it('should downvote a recommendation twice', () => {
+		const recommendationData = RecommendationFactory.getRecommendation(2);
+		cy.createRecommendationByApi({ linksData: [recommendationData] });
+
+		cy.visit(URL);
+		cy.intercept('POST', '/recommendations/*/downvote').as(
+			'downvoteRecommendation'
+		);
+		cy.get('[data-test="down"]').click();
+		cy.wait('@downvoteRecommendation');
+		cy.get('[data-test="down"]').click();
+		cy.wait('@downvoteRecommendation');
+
+		cy.visit(URL);
+		cy.get('[data-test="0"]>div:last-child').contains('-2');
+	});
+
+	it('should delete a recommendation when downvote for the sixth time', () => {
+		const recommendationData = RecommendationFactory.getRecommendation(2);
+		cy.createRecommendationByApi({
+			linksData: [recommendationData],
+			options: { setScore: -5 },
+		});
+
+		cy.visit(URL);
+		cy.get('[data-test="0"]>div:last-child').contains('-5');
+
+		cy.intercept('POST', '/recommendations/*/downvote').as(
+			'downvoteRecommendation'
+		);
+		cy.get('[data-test="down"]').click();
+		cy.wait('@downvoteRecommendation');
+
+		cy.visit(URL);
+		cy.contains(recommendationData.name).should('not.exist');
+	});
+});
